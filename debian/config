@@ -3,16 +3,8 @@
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
-db_input high _APP_NAME_/mysql/standalone || true
-db_go
-
-db_get _APP_NAME_/mysql/standalone
-if [ "$RET" = "false" ]; then
-  # Ask for credentials
-  db_input high _APP_NAME_/mysql/db_host || true
-  db_input high _APP_NAME_/mysql/db_port || true
-  db_input high _APP_NAME_/mysql/db_username || true
-  db_input high _APP_NAME_/mysql/db_password || true
-  db_input high _APP_NAME_/mysql/db_name || true
-  db_go
+if [ -f /usr/share/dbconfig-common/dpkg/config.mysql ]; then
+  . /usr/share/dbconfig-common/dpkg/config.mysql 
+  dbc_go _APP_NAME_-mysql $@
 fi
+
