@@ -4,5 +4,13 @@ set -e
 
 ROOT_DIR=$(dirname $(dirname $0))
 APP_NAME="$1"
+APP_DIR="$2"
 
 find ${ROOT_DIR}/debian -type f -print0 | xargs -0 sed -i "s/_APP_NAME_/${APP_NAME}/g"
+
+if [ -f ${APP_DIR}/Gemfile.lock ]; then
+  if grep "mysql2" ${APP_DIR}/Gemfile.lock &>/dev/null; then
+    sed -i "s/_DBC_DBTYPE_/mysql2/g" ${APP_DIR}/Gemfile.lock
+  fi
+fi
+
