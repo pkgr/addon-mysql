@@ -9,8 +9,10 @@ APP_DIR="$2"
 find ${ROOT_DIR}/debian -type f -print0 | xargs -0 sed -i "s/_APP_NAME_/${APP_NAME}/g"
 
 if [ -f ${APP_DIR}/Gemfile.lock ]; then
+  echo "Using mysql2 database adapter..."
   if grep "mysql2" ${APP_DIR}/Gemfile.lock &>/dev/null; then
-    sed -i "s/_DBC_DBTYPE_/mysql2/g" ${APP_DIR}/Gemfile.lock
+    echo "replacing..."
+    sed -i "s/_DBC_DBTYPE_/mysql2/g" ${ROOT_DIR}/debian/conf/database.template 
   fi
 fi
 
