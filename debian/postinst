@@ -14,10 +14,16 @@ set -ex
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+APP_NAME="_APP_NAME_"
+TEMPLATE="/usr/share/${APP_NAME}-mysql/templates/database.template"
+OUTPUT="/etc/${APP_NAME}/conf.d/database"
+
 # source debconf library
 . /usr/share/debconf/confmodule
 
 dbc_mysql_createdb_encoding="UTF8"
+dbc_generate_include=sh:$OUTPUT
+dbc_generate_include_args="-o template_infile=${TEMPLATE}"
 
-( . /usr/share/dbconfig-common/dpkg/postinst ; dbc_go _APP_NAME_-mysql $@ )
+( . /usr/share/dbconfig-common/dpkg/postinst ; dbc_go ${APP_NAME}-mysql $@ )
 
