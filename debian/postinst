@@ -22,7 +22,7 @@ OUTPUT="/etc/${APP_NAME}/conf.d/database"
 . /usr/share/debconf/confmodule
 
 dbc_mysql_createdb_encoding="UTF8"
-dbc_generate_include=sh:$OUTPUT
+dbc_generate_include=template:$OUTPUT
 dbc_generate_include_args="-o template_infile=${TEMPLATE}"
 
 ( . /usr/share/dbconfig-common/dpkg/postinst ; dbc_go ${APP_NAME}-mysql $@ )
