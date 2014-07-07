@@ -17,5 +17,7 @@ set -ex
 # source debconf library
 . /usr/share/debconf/confmodule
 
+dbc_mysql_createdb_encoding="UTF8"
+
 ( . /usr/share/dbconfig-common/dpkg/postinst ; dbc_go _APP_NAME_-mysql $@ )
 
