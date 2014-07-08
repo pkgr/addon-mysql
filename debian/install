@@ -1,1 +1,3 @@
 debian/conf/*.template usr/share/_APP_NAME_-mysql/templates
+debian/conf/dbconfig.conf etc/dbconfig-common/_APP_NAME_-mysql.conf
+
