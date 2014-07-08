@@ -2,7 +2,9 @@ Template: _APP_NAME_/mysql/autoinstall
 Type: boolean
 Default: false
 Description: Do you want to use this wizard to help setup your MySQL database?
- Choosing NO will require you to manually setup all the things related to the databasee.
+ If you want, we can automatically create the MySQL database required by _APP_NAME_.
+ .
+ If you choose NOT to use this wizard, you will have to manually setup all the things related to the database.
 
 Template: _APP_NAME_/mysql/connection_failed
 Type: note
@@ -12,40 +14,44 @@ Description: Connection to MySQL server failed.
 Template: _APP_NAME_/mysql/admin_username
 Type: string
 Default: root
-Description: The username of the administrator of your MySQL server
+Description: MySQL administrator username:
  Enter the username of the user with privileged access to your MySQL server.
 
 Template: _APP_NAME_/mysql/admin_password
 Type: password
-Description: The password of the administrator of your MySQL server
+Description: MySQL administrator password: 
  Enter the password of the user with privileged access to your MySQL server.
 
 Template: _APP_NAME_/mysql/db_host
 Type: string
 Default: 127.0.0.1
-Description: Host of your MySQL server
+Description: MySQL IP or hostname:
  Enter the IP or hostname of your MySQL server.
 
 Template: _APP_NAME_/mysql/db_port
 Type: string
 Default: 3306
-Description: Port of your MySQL server
- Enter the Port of your MySQL server.
+Description: MySQL port:
+ Enter the port where your MySQL server is listening.
 
 Template: _APP_NAME_/mysql/db_username
 Type: string
 Default: _APP_SAFE_NAME_
-Description: Username used by _APP_NAME_ to connect to the MySQL server.
- Enter the username used to connect to your MySQL server.
+Description: Username used by _APP_NAME_ to connect to the MySQL server:
+ Choose the username that will be used by _APP_NAME_ to connect to your MySQL server.
 
 Template: _APP_NAME_/mysql/db_password
 Type: password
-Description: Password used by _APP_NAME_ to connect to the MySQL server.
- Enter the password used to connect to your MySQL server. If left blank, a random password will be generated for you.
+Description: Password used by _APP_NAME_ to connect to the MySQL server:
+ Enter the password that will be used by _APP_NAME_  to connect to your MySQL server.
+ .
+ If left blank, a random password will be generated for you.
 
 Template: _APP_NAME_/mysql/db_name
 Type: string
 Default: _APP_SAFE_NAME_
-Description: Name of the database to create for _APP_NAME_.
- Enter the name of the database to create.
+Description: Name of the database to create for _APP_NAME_:
+ Choose the name of the database that will host the data of _APP_NAME_.
+ .
+ If the database already exists, it will be reused..
 
