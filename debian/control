@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 7)
 Homepage: https://packager.io
 
 Package: _APP_NAME_-mysql
-Architecture: all
+Architecture: amd64
 Pre-Depends: debconf
 Provides: _APP_NAME_-mysql
 Depends: dbconfig-common, mysql-client | virtual-mysql-client, ${misc:Depends}
