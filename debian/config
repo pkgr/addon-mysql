@@ -6,7 +6,7 @@ APP_SAFE_NAME="_APP_SAFE_NAME_"
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
-db_input medium ${APP_NAME}/mysql/autoinstall || true
+db_input high ${APP_NAME}/mysql/autoinstall || true
 db_go
 
 db_get ${APP_NAME}/mysql/autoinstall
