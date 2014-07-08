@@ -1,4 +1,4 @@
-_APP_NAME_-mysql (0.0.0-1) stable; urgency=low
+_APP_NAME_-mysql (_APP_VERSION_-_APP_ITERATION_) stable; urgency=low
 
   * First version.
 
