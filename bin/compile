@@ -20,5 +20,5 @@ if [ -f ${APP_DIR}/Gemfile.lock ]; then
   fi
 fi
 
-mv ${ROOT_DIR}/debian/conf/dbconfig.conf ${ROOT_DIR}/debian/conf/${APP_NAME}-mysql.conf
+#mv ${ROOT_DIR}/debian/conf/dbconfig.conf ${ROOT_DIR}/debian/conf/${APP_NAME}-mysql.conf
 
