@@ -6,7 +6,7 @@ APP_SAFE_NAME="_APP_SAFE_NAME_"
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
-db_input high ${APP_NAME}/mysql/autoinstall || true
+db_input medium ${APP_NAME}/mysql/autoinstall || true
 db_go
 
 db_get ${APP_NAME}/mysql/autoinstall
@@ -14,9 +14,9 @@ if [ "$RET" = "false" ]; then
   exit 0
 fi
 
-db_input high ${APP_NAME}/mysql/db_host || true
-db_input high ${APP_NAME}/mysql/db_port || true
-db_input high ${APP_NAME}/mysql/admin_username || true
+db_input medium ${APP_NAME}/mysql/db_host || true
+db_input medium ${APP_NAME}/mysql/db_port || true
+db_input medium ${APP_NAME}/mysql/admin_username || true
 db_input high ${APP_NAME}/mysql/admin_password || true
 
 db_go
@@ -49,14 +49,14 @@ if [ $test_status -eq 0 ]; then
   echo "MySQL connection OK"
 else
   echo "$test_connection"
-  db_input high ${APP_NAME}/mysql/connection_failed || true
+  db_input medium ${APP_NAME}/mysql/connection_failed || true
   db_go
   exit 1
 fi
 set -e
 
-db_input high ${APP_NAME}/mysql/db_username || true
-db_input high ${APP_NAME}/mysql/db_password || true
+db_input medium ${APP_NAME}/mysql/db_username || true
+db_input medium ${APP_NAME}/mysql/db_password || true
 db_go
 
 db_get ${APP_NAME}/mysql/db_password
@@ -65,6 +65,6 @@ if [ "$RET" = "" ]; then
   db_set ${APP_NAME}/mysql/db_password "$dbc_password"
 fi
 
-db_input high ${APP_NAME}/mysql/db_name || true
+db_input medium ${APP_NAME}/mysql/db_name || true
 db_go
 
