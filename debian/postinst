@@ -26,6 +26,19 @@ mysql_execute() {
   mysql -u"${dbc_admin_username}" -p"${dbc_admin_password}" -h"${dbc_host}" -P"${dbc_port}" -e "$command"
 }
 
+generate_database_template() {
+  local tmpfile=$(mktemp)
+  cp "${TEMPLATE}" "${tmpfile}"
+  sed -i "s/_DBC_DBTYPE_/mysql/g" ${tmpfile}
+  sed -i "s/_DBC_DBUSER_/${dbc_username}/g" ${tmpfile}
+  sed -i "s/_DBC_DBPASS_/${dbc_password}/g" ${tmpfile}
+  sed -i "s/_DBC_DBSERVER_/${dbc_host}/g" ${tmpfile}
+  sed -i "s/_DBC_DBPORT_/${dbc_port}/g" ${tmpfile}
+  sed -i "s/_DBC_DBNAME_/${dbc_name}/g" ${tmpfile}
+  echo "Generating ${OUTPUT}..."
+  mv "${tmpfile}" "${OUTPUT}"
+}
+
 case "$1" in
 
   configure)
@@ -52,11 +65,11 @@ case "$1" in
 
       mysql_execute "GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
 
-#      mysql_execute "CREATE USER '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
-
       mysql_execute "CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;"
 
       mysql_execute "GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_host}'; FLUSH PRIVILEGES;";
+
+      generate_database_template
     fi
   ;;
 
