@@ -1,14 +1,18 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 
 APP_NAME="_APP_NAME_"
+APP_SAFE_NAME="_APP_SAFE_NAME_"
 
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
 if [ -f /usr/share/dbconfig-common/dpkg/config.mysql ]; then
+  dbc_debug="yes"
   dbc_authmethod_user="password"
-  dbc_dbname="${APP_NAME}"
-  dbc_dbuser="${APP_NAME}"
+  dbc_dbname="${APP_SAFE_NAME}"
+  dbc_dbuser="${APP_SAFE_NAME}"
+  dbc_remote_questions_priority='high'
+  dbc_dbserver=''
 
   . /usr/share/dbconfig-common/dpkg/config.mysql 
   dbc_go ${APP_NAME}-mysql $@
