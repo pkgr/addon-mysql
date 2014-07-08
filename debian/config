@@ -6,15 +6,46 @@ APP_SAFE_NAME="_APP_SAFE_NAME_"
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
-if [ -f /usr/share/dbconfig-common/dpkg/config.mysql ]; then
-  dbc_debug="yes"
-  dbc_authmethod_user="password"
-  dbc_dbname="${APP_SAFE_NAME}"
-  dbc_dbuser="${APP_SAFE_NAME}"
-  dbc_remote_questions_priority='high'
-  dbc_dbserver=''
+db_input high _APP_NAME_/mysql/autoinstall || true
+db_go
 
-  . /usr/share/dbconfig-common/dpkg/config.mysql 
-  dbc_go ${APP_NAME}-mysql $@
+if [ "$RET" = "true" ]; then
+  db_input high ${APP_NAME}/mysql/db_host || true
+  db_go
+  dbc_host="$RET"
+  db_input high ${APP_NAME}/mysql/db_port || true
+  db_go
+  dbc_port="$RET"
+
+  db_input high ${APP_NAME}/mysql/admin_username || true
+  db_go
+  dbc_admin_username="$RET"
+  db_input high ${APP_NAME}/mysql/admin_password || true
+  db_go
+  dbc_admin_password="$RET"
+
+  set +e
+  test_connection=$(mysql -u "$dbc_admin_username" -p"$dbc_admin_password" -D mysql -e "select count(*) from user;")
+
+  if [ $? -eq 0 ]
+    echo "MySQL connection OK"
+  else
+    echo "$test_connection"
+    db_input high ${APP_NAME}/mysql/connection_failed || true
+    exit 1
+  fi
+  set -e
+
+  db_input high ${APP_NAME}/mysql/db_username || true
+  db_go
+
+  db_input high ${APP_NAME}/mysql/db_password || true
+  db_go
+  if [ "$RET" = "" ]; then
+    dbc_password=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
+    db_set ${APP_NAME}/mysql/db_password "$dbc_password"
+  fi
+
+  db_input high ${APP_NAME}/mysql/db_name || true
+  db_go
 fi
-

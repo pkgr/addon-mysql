@@ -21,9 +21,53 @@ OUTPUT="/etc/${APP_NAME}/conf.d/database"
 # source debconf library
 . /usr/share/debconf/confmodule
 
-dbc_mysql_createdb_encoding="UTF8"
-dbc_generate_include=template:$OUTPUT
-dbc_generate_include_args="-o template_infile=${TEMPLATE}"
+mysql_execute() {
+  local command="$1"
+  mysql -u"${dbc_admin_username}" -p"${dbc_admin_password}" -h"${dbc_host}" -P"${dbc_port}" -e "$command"
+}
 
-( . /usr/share/dbconfig-common/dpkg/postinst ; dbc_go ${APP_NAME}-mysql $@ )
+case "$1" in
+
+  configure)
+
+    db_get ${APP_NAME}/mysql/autoinstall
+
+    if [ "$RET" = "false" ]; then
+      exit 0
+    else
+      db_get ${APP_NAME}/mysql/admin_username
+      dbc_admin_username="$RET"
+      db_get ${APP_NAME}/mysql/admin_password
+      dbc_admin_password="$RET"
+      db_get ${APP_NAME}/mysql/db_host
+      dbc_host="$RET"
+      db_get ${APP_NAME}/mysql/db_port
+      dbc_port="$RET"
+      db_get ${APP_NAME}/mysql/db_username
+      dbc_username="$RET"
+      db_get ${APP_NAME}/mysql/db_password
+      dbc_password="$RET"
+      db_get ${APP_NAME}/mysql/db_name
+      dbc_name="$RET"
+
+      if mysql_execute "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '${dbc_username}')" &>/dev/null ; then
+	echo "user ${dbc_username} already exists."
+      else
+	mysql_execute "CREATE USER '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
+      fi
+
+      mysql_execute "CREATE DATABASE IF NOT EXISTS '${dbc_name}' CHARACTER SET utf8;"
+
+      mysql_execute "GRANT ALL PRIVILEGES ON ${dbc_name}.* TO '${dbc_username}'@'${dbc_host}'; FLUSH PRIVILEGES;";
+    fi
+  ;;
+
+  abort-upgrade|abort-remove|abort-deconfigure)
+    exit 0
+  ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+  ;;
 
