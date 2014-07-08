@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -e
 
 APP_NAME="_APP_NAME_"
 APP_SAFE_NAME="_APP_SAFE_NAME_"
@@ -30,10 +30,22 @@ dbc_admin_username="$RET"
 db_get ${APP_NAME}/mysql/admin_password
 dbc_admin_password="$RET"
 
-set +e
-test_connection=$(mysql -u "$dbc_admin_username" $([ -z "$dbc_admin_password" ] || echo " -p'$dbc_admin_password'") -P"$dbc_port" -h"${dbc_host}" -e "select count(*) from mysql.user;")
+tmpfile=$(mktemp)
+cat > $tmpfile <<CONFIG
+[client]
+password="${dbc_admin_password}"
+user="${dbc_admin_user}"
+host="${dbc_host}"
+port="${dbc_port}"
+CONFIG
 
-if [ $? -eq 0 ]; then
+set +e
+test_connection=$(mysql --defaults-file="$tmpfile" -e "select count(*) from mysql.user;")
+test_status=$?
+
+rm -f "$tmpfile"
+
+if [ $test_status -eq 0 ]; then
   echo "MySQL connection OK"
 else
   echo "$test_connection"
