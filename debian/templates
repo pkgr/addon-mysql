@@ -53,5 +53,5 @@ Default: _APP_SAFE_NAME_
 Description: Name of the database to create for _APP_NAME_:
  Choose the name of the database that will host the data of _APP_NAME_.
  .
- If the database already exists, it will be reused..
+ If the database already exists, it will be reused.
 
