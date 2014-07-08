@@ -34,6 +34,7 @@ Description: Port of your MySQL server
 
 Template: _APP_NAME_/mysql/db_username
 Type: string
+Default: _APP_SAFE_NAME_
 Description: Username used by _APP_NAME_ to connect to the MySQL server.
  Enter the username used to connect to your MySQL server.
 
@@ -44,6 +45,7 @@ Description: Password used by _APP_NAME_ to connect to the MySQL server.
 
 Template: _APP_NAME_/mysql/db_name
 Type: string
+Default: _APP_SAFE_NAME_
 Description: Name of the database to create for _APP_NAME_.
  Enter the name of the database to create.
 

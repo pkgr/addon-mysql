@@ -50,15 +50,13 @@ case "$1" in
       db_get ${APP_NAME}/mysql/db_name
       dbc_name="$RET"
 
-      if mysql_execute "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '${dbc_username}')" &>/dev/null ; then
-	echo "user ${dbc_username} already exists."
-      else
-	mysql_execute "CREATE USER '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
-      fi
+      mysql_execute "GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
 
-      mysql_execute "CREATE DATABASE IF NOT EXISTS '${dbc_name}' CHARACTER SET utf8;"
+#      mysql_execute "CREATE USER '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
 
-      mysql_execute "GRANT ALL PRIVILEGES ON ${dbc_name}.* TO '${dbc_username}'@'${dbc_host}'; FLUSH PRIVILEGES;";
+      mysql_execute "CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;"
+
+      mysql_execute "GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_host}'; FLUSH PRIVILEGES;";
     fi
   ;;
 
@@ -70,4 +68,5 @@ case "$1" in
     echo "postinst called with unknown argument \`$1'" >&2
     exit 1
   ;;
+esac
 
