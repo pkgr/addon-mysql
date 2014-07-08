@@ -22,8 +22,10 @@ OUTPUT="/etc/${APP_NAME}/conf.d/database"
 . /usr/share/debconf/confmodule
 
 mysql_execute() {
-  local command="$1"
-  mysql -u"${dbc_admin_username}" -p"${dbc_admin_password}" -h"${dbc_host}" -P"${dbc_port}" -e "$command"
+  local defaults_file="$1"
+  local command="$2"
+
+  mysql --defaults-file="$defaults_file" -e "$command"
 }
 
 generate_database_template() {
@@ -63,11 +65,22 @@ case "$1" in
       db_get ${APP_NAME}/mysql/db_name
       dbc_name="$RET"
 
-      mysql_execute "GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
+      tmpfile=$(mktemp)
+      cat > $tmpfile <<CONFIG
+[client]
+password="${dbc_admin_password}"
+user="${dbc_admin_user}"
+host="${dbc_host}"
+port="${dbc_port}"
+CONFIG
 
-      mysql_execute "CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;"
+      mysql_execute "$tmpfile" "GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
 
-      mysql_execute "GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_host}'; FLUSH PRIVILEGES;";
+      mysql_execute "$tmpfile" "CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;"
+
+      mysql_execute "$tmpfile" "GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_host}'; FLUSH PRIVILEGES;";
+
+      rm -f "$tmpfile"
 
       generate_database_template
     fi
