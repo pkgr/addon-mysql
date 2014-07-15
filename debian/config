@@ -17,23 +17,34 @@ STATE=1
 while [ "$STATE" != 0 -a "$STATE" != 3 ]; do
     case "$STATE" in
     1)
-	db_beginblock
 	db_input high ${APP_NAME}/mysql/db_host || true
-	db_input high ${APP_NAME}/mysql/db_port || true	        
-	db_input high ${APP_NAME}/mysql/admin_username || true
-	db_input high ${APP_NAME}/mysql/admin_password || true
-	db_endblock
     ;;
 
     2)
-	db_beginblock
-	db_input medium ${APP_NAME}/mysql/db_username || true
-	db_input medium ${APP_NAME}/mysql/db_password || true
-	db_input medium ${APP_NAME}/mysql/db_name || true
-	db_endblock
+	db_input high ${APP_NAME}/mysql/db_port || true	        
     ;;
 
     3)
+	db_input high ${APP_NAME}/mysql/admin_username || true
+    ;;
+
+    4)
+	db_input high ${APP_NAME}/mysql/admin_password || true
+    ;;
+
+    5)
+	db_input medium ${APP_NAME}/mysql/db_username || true
+    ;;
+
+    6)
+	db_input medium ${APP_NAME}/mysql/db_password || true
+    ;;
+
+    7)
+	db_input medium ${APP_NAME}/mysql/db_name || true
+    ;;
+
+    8)
 	db_get ${APP_NAME}/mysql/db_host
 	dbc_host="$RET"
 
