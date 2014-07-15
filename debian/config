@@ -61,7 +61,7 @@ db_go
 
 db_get ${APP_NAME}/mysql/db_password
 if [ "$RET" = "" ]; then
-  dbc_password=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c32;echo;)
+  dbc_password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c32;echo;)
   db_set ${APP_NAME}/mysql/db_password "$dbc_password"
 fi
 
