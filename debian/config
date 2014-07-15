@@ -99,8 +99,6 @@ if [ $test_status -eq 0 ]; then
   echo "MySQL connection OK"
 else
   echo "$test_connection"
-  db_input high ${APP_NAME}/mysql/connection_failed || true
-  db_go
   db_input high ${APP_NAME}/mysql/retry || true
   if db_go; then
     db_get ${APP_NAME}/mysql/retry || true

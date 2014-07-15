@@ -6,7 +6,7 @@ Description: Do you want to use this wizard to help setup your MySQL database?
  .
  If you choose NOT to use this wizard, you will have to manually setup all the things related to the database.
 
-Template: _APP_NAME_/mysql/connection_failed
+Template: _APP_NAME_/mysql/retry
 Type: select
 Choices: retry,abort,ignore
 Description: Connection to MySQL server failed, what do you want to do?
