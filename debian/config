@@ -70,6 +70,6 @@ db_go
 
 db_subst ${APP_NAME}/mysql/db_source_host default "$(hostname -f)"
 db_fset ${APP_NAME}/mysql/db_source_host seen false
-db_input medium ${APP_NAME}/mysq/db_source_host || true
+db_input medium ${APP_NAME}/mysql/db_source_host || true
 db_go
 
