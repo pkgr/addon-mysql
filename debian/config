@@ -68,7 +68,7 @@ fi
 db_input medium ${APP_NAME}/mysql/db_name || true
 db_go
 
-if [ "$dbc_host" = "127.0.0.1" || "$dbc_host" = "localhost" ]; then
+if [ "$dbc_host" = "127.0.0.1" ] || [ "$dbc_host" = "localhost" ]; then
   # do not ask for source host
 else
   db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
