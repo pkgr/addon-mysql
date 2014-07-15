@@ -14,60 +14,65 @@ if [ "$RET" = "false" ]; then
   exit 0
 fi
 
-STATE=1 
-while [ "$STATE" != 0 -a "$STATE" != 9 ]; do
+wizard() {
+  local STATE=${1:=1}
+  while [ "$STATE" != 0 -a "$STATE" != 9 ]; do
     case "$STATE" in
-    1)
-	db_input high ${APP_NAME}/mysql/db_host || true
-    ;;
+      1)
+        db_input high ${APP_NAME}/mysql/db_host || true
+      ;;
 
-    2)
-	db_input high ${APP_NAME}/mysql/db_port || true	        
-    ;;
+      2)
+        db_input high ${APP_NAME}/mysql/db_port || true
+      ;;
 
-    3)
-	db_input high ${APP_NAME}/mysql/admin_username || true
-    ;;
+      3)
+        db_input high ${APP_NAME}/mysql/admin_username || true
+      ;;
 
-    4)
-	db_input high ${APP_NAME}/mysql/admin_password || true
-    ;;
+      4)
+        db_input high ${APP_NAME}/mysql/admin_password || true
+      ;;
 
-    5)
-	db_input medium ${APP_NAME}/mysql/db_username || true
-    ;;
+      5)
+        db_input medium ${APP_NAME}/mysql/db_username || true
+      ;;
 
-    6)
-	db_input medium ${APP_NAME}/mysql/db_password || true
-    ;;
+      6)
+        db_input medium ${APP_NAME}/mysql/db_password || true
+      ;;
 
-    7)
-	db_input medium ${APP_NAME}/mysql/db_name || true
-    ;;
+      7)
+        db_input medium ${APP_NAME}/mysql/db_name || true
+      ;;
 
-    8)
-	db_get ${APP_NAME}/mysql/db_host
-	dbc_host="$RET"
+      8)
+        db_get ${APP_NAME}/mysql/db_host
+        dbc_host="$RET"
 
-	if [ "$dbc_host" = "127.0.0.1" ] || [ "$dbc_host" = "localhost" ]; then
-	    db_set ${APP_NAME}/mysql/db_source_host "${dbc_host}"
-	else
-	    db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
-	fi
+        if [ "$dbc_host" = "127.0.0.1" ] || [ "$dbc_host" = "localhost" ]; then
+          db_set ${APP_NAME}/mysql/db_source_host "${dbc_host}"
+        else
+          db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
+        fi
 
-	db_fset ${APP_NAME}/mysql/db_source_host seen false
-	db_input high ${APP_NAME}/mysql/db_source_host || true
-    ;;
+        db_fset ${APP_NAME}/mysql/db_source_host seen false
+        db_input high ${APP_NAME}/mysql/db_source_host || true
+      ;;
     esac
 
     if db_go; then
-        STATE=$(($STATE + 1))
+      STATE=$(($STATE + 1))
     else
-        STATE=$(($STATE - 1))
+      STATE=$(($STATE - 1))
     fi
-done
+  done
+}
 
+wizard
 
+db_get ${APP_NAME}/mysql/db_host
+dbc_host="$RET"
 db_get ${APP_NAME}/mysql/db_port
 dbc_port="$RET"
 db_get ${APP_NAME}/mysql/admin_username
@@ -96,7 +101,21 @@ else
   echo "$test_connection"
   db_input high ${APP_NAME}/mysql/connection_failed || true
   db_go
-  exit 1
+  db_input high ${APP_NAME}/mysql/retry || true
+  if db_go
+    db_get ${APP_NAME}/mysql/retry || true
+    if [ "$RET" = "retry" ]; then
+      wizard
+    else if [ "$RET" = "ignore" ]; then
+      echo "MySQL configuration failed. Ignoring."
+    else
+      echo "MySQL configuration failed. Aborting."
+      exit 1
+    fi
+  else
+    echo "MySQL configuration failed. Aborting."
+    exit 1
+  fi
 fi
 set -e
 

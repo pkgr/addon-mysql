@@ -7,9 +7,10 @@ Description: Do you want to use this wizard to help setup your MySQL database?
  If you choose NOT to use this wizard, you will have to manually setup all the things related to the database.
 
 Template: _APP_NAME_/mysql/connection_failed
-Type: note
-Description: Connection to MySQL server failed.
- It looks like the connection to the MySQL server can't be established with the information you've specified. Please retry.
+Type: select
+Choices: retry,abort,ignore
+Description: Connection to MySQL server failed, what do you want to do?
+ It looks like the connection to the MySQL server can't be established with the information you've specified.
 
 Template: _APP_NAME_/mysql/admin_username
 Type: string
@@ -19,7 +20,7 @@ Description: MySQL administrator username:
 
 Template: _APP_NAME_/mysql/admin_password
 Type: password
-Description: MySQL administrator password: 
+Description: MySQL administrator password:
  Enter the password of the user with privileged access to your MySQL server.
 
 Template: _APP_NAME_/mysql/db_host
