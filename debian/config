@@ -102,7 +102,7 @@ else
   db_input high ${APP_NAME}/mysql/connection_failed || true
   db_go
   db_input high ${APP_NAME}/mysql/retry || true
-  if db_go
+  if db_go; then
     db_get ${APP_NAME}/mysql/retry || true
     if [ "$RET" = "retry" ]; then
       wizard
