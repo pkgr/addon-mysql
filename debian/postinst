@@ -76,11 +76,14 @@ host="${dbc_host}"
 port="${dbc_port}"
 CONFIG
 
+      db_get ${APP_NAME}/mysql/retry || true
+      retry_ignore_abort="$RET"
+
+      if [ "$retry_ignore_abort" = "ignore" ]; then set +e; fi
       mysql_execute "$tmpfile" "GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_source_host}' IDENTIFIED BY '${dbc_password}';"
-
       mysql_execute "$tmpfile" "CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;"
-
       mysql_execute "$tmpfile" "GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_source_host}'; FLUSH PRIVILEGES;";
+      if [ "$retry_ignore_abort" = "ignore" ]; then set -e; fi
 
       rm -f "$tmpfile"
 
