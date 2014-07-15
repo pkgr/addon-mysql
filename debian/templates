@@ -8,7 +8,8 @@ Description: Do you want to use this wizard to help setup your MySQL database?
 
 Template: _APP_NAME_/mysql/retry
 Type: select
-Choices: retry,abort,ignore
+Choices: retry, abort, ignore
+Default: abort
 Description: Connection to MySQL server failed, what do you want to do?
  It looks like the connection to the MySQL server can't be established with the information you've specified.
 
