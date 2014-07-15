@@ -83,7 +83,7 @@ CONFIG
 
       mysql_execute "$tmpfile" "CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;"
 
-      mysql_execute "$tmpfile" "GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_host}'; FLUSH PRIVILEGES;";
+      mysql_execute "$tmpfile" "GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_source_host}'; FLUSH PRIVILEGES;";
 
       rm -f "$tmpfile"
 
