@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 APP_NAME="_APP_NAME_"
 APP_SAFE_NAME="_APP_SAFE_NAME_"
@@ -56,7 +56,7 @@ wizard() {
           db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
         fi
 
-        db_fset ${APP_NAME}/mysql/db_source_host seen false
+        # db_fset ${APP_NAME}/mysql/db_source_host seen false
         db_input high ${APP_NAME}/mysql/db_source_host || true
       ;;
     esac
@@ -99,6 +99,7 @@ if [ $test_status -eq 0 ]; then
   echo "MySQL connection OK"
 else
   echo "$test_connection"
+  db_fset ${APP_NAME}/mysql/retry seen false
   db_input high ${APP_NAME}/mysql/retry || true
   if db_go; then
     db_get ${APP_NAME}/mysql/retry || true
