@@ -14,7 +14,7 @@ fi
 
 
 STATE=1 
-while [ "$STATE" != 0 -a "$STATE" != 3 ]; do
+while [ "$STATE" != 0 -a "$STATE" != 9 ]; do
     case "$STATE" in
     1)
 	db_input high ${APP_NAME}/mysql/db_host || true
