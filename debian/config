@@ -15,7 +15,7 @@ if [ "$RET" = "false" ]; then
 fi
 
 wizard() {
-  local state=${1:=1}
+  local state=$(if [ -z "$1" ]; then echo 1; else echo "$1"; fi)
   while [ "$state" != 0 -a "$state" != 9 ]; do
     case "$state" in
       1)
