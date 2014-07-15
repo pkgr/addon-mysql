@@ -56,7 +56,6 @@ wizard() {
           db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
         fi
 
-        # db_fset ${APP_NAME}/mysql/db_source_host seen false
         db_input high ${APP_NAME}/mysql/db_source_host || true
       ;;
     esac
@@ -105,6 +104,9 @@ CONFIG
     if db_go; then
       db_get ${APP_NAME}/mysql/retry || true
       if [ "$RET" = "retry" ]; then
+        for var in "mysql/db_host" "mysql/db_port" "mysql/admin_username" "mysql/admin_password" "mysql/db_name" "mysql/db_username" "mysql/db_password"; do
+          db_fset ${APP_NAME}/${var} seen false
+        done
         wizard
       else
         if [ "$RET" = "ignore" ]; then
