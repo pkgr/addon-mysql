@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 
 APP_NAME="_APP_NAME_"
 APP_SAFE_NAME="_APP_SAFE_NAME_"
@@ -9,6 +9,7 @@ db_capb backup
 
 db_input high ${APP_NAME}/mysql/autoinstall || true
 db_go
+db_get ${APP_NAME}/mysql/autoinstall
 if [ "$RET" = "false" ]; then
   exit 0
 fi
