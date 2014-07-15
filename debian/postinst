@@ -79,7 +79,7 @@ host="${dbc_host}"
 port="${dbc_port}"
 CONFIG
 
-      mysql_execute "$tmpfile" "GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_host}' IDENTIFIED BY '${dbc_password}';"
+      mysql_execute "$tmpfile" "GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_source_host}' IDENTIFIED BY '${dbc_password}';"
 
       mysql_execute "$tmpfile" "CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;"
 

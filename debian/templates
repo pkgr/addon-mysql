@@ -55,3 +55,8 @@ Description: Name of the database to create for _APP_NAME_:
  .
  If the database already exists, it will be reused.
 
+Template: _APP_NAME_/mysql/db_source_host
+Type: string
+Description: FQDN of the source server:
+ Enter the fully qualified domain name of the local machine.
+
