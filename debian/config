@@ -106,11 +106,13 @@ else
     db_get ${APP_NAME}/mysql/retry || true
     if [ "$RET" = "retry" ]; then
       wizard
-    else if [ "$RET" = "ignore" ]; then
-      echo "MySQL configuration failed. Ignoring."
     else
-      echo "MySQL configuration failed. Aborting."
-      exit 1
+      if [ "$RET" = "ignore" ]; then
+        echo "MySQL configuration failed. Ignoring."
+      else
+        echo "MySQL configuration failed. Aborting."
+        exit 1
+      fi
     fi
   else
     echo "MySQL configuration failed. Aborting."
