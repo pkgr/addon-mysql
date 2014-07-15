@@ -67,21 +67,22 @@ wizard() {
       state=$(($state - 1))
     fi
   done
+
+  check
 }
 
-wizard
+check() {
+  db_get ${APP_NAME}/mysql/db_host
+  dbc_host="$RET"
+  db_get ${APP_NAME}/mysql/db_port
+  dbc_port="$RET"
+  db_get ${APP_NAME}/mysql/admin_username
+  dbc_admin_username="$RET"
+  db_get ${APP_NAME}/mysql/admin_password
+  dbc_admin_password="$RET"
 
-db_get ${APP_NAME}/mysql/db_host
-dbc_host="$RET"
-db_get ${APP_NAME}/mysql/db_port
-dbc_port="$RET"
-db_get ${APP_NAME}/mysql/admin_username
-dbc_admin_username="$RET"
-db_get ${APP_NAME}/mysql/admin_password
-dbc_admin_password="$RET"
-
-tmpfile=$(mktemp)
-cat > $tmpfile <<CONFIG
+  tmpfile=$(mktemp)
+  cat > $tmpfile <<CONFIG
 [client]
 password="${dbc_admin_password}"
 user="${dbc_admin_user}"
@@ -89,40 +90,44 @@ host="${dbc_host}"
 port="${dbc_port}"
 CONFIG
 
-set +e
-test_connection=$(mysql --defaults-file="$tmpfile" -e "select count(*) from mysql.user;")
-test_status=$?
+  set +e
+  test_connection=$(mysql --defaults-file="$tmpfile" -e "select count(*) from mysql.user;")
+  test_status=$?
 
-rm -f "$tmpfile"
+  rm -f "$tmpfile"
 
-if [ $test_status -eq 0 ]; then
-  echo "MySQL connection OK"
-else
-  echo "$test_connection"
-  db_fset ${APP_NAME}/mysql/retry seen false
-  db_input high ${APP_NAME}/mysql/retry || true
-  if db_go; then
-    db_get ${APP_NAME}/mysql/retry || true
-    if [ "$RET" = "retry" ]; then
-      wizard
-    else
-      if [ "$RET" = "ignore" ]; then
-        echo "MySQL configuration failed. Ignoring."
-      else
-        echo "MySQL configuration failed. Aborting."
-        exit 1
-      fi
-    fi
+  if [ $test_status -eq 0 ]; then
+    echo "MySQL connection OK"
   else
-    echo "MySQL configuration failed. Aborting."
-    exit 1
+    echo "$test_connection"
+    db_fset ${APP_NAME}/mysql/retry seen false
+    db_input high ${APP_NAME}/mysql/retry || true
+    if db_go; then
+      db_get ${APP_NAME}/mysql/retry || true
+      if [ "$RET" = "retry" ]; then
+        wizard
+      else
+        if [ "$RET" = "ignore" ]; then
+          echo "MySQL configuration failed. Ignoring."
+        else
+          echo "MySQL configuration failed. Aborting."
+          exit 1
+        fi
+      fi
+    else
+      echo "MySQL configuration failed. Aborting."
+      exit 1
+    fi
   fi
-fi
-set -e
+  set -e
 
-db_get ${APP_NAME}/mysql/db_password
-if [ "$RET" = "" ]; then
-  dbc_password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c32;echo;)
-  db_set ${APP_NAME}/mysql/db_password "$dbc_password"
-fi
+  db_get ${APP_NAME}/mysql/db_password
+  if [ "$RET" = "" ]; then
+    dbc_password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c32;echo;)
+    db_set ${APP_NAME}/mysql/db_password "$dbc_password"
+  fi
+}
+
+wizard
+
 
