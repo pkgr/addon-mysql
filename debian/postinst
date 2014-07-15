@@ -66,9 +66,6 @@ case "$1" in
       dbc_name="$RET"
       db_get ${APP_NAME}/mysql/db_source_host
       dbc_source_host="$RET"
-      if [ -z "$dbc_source_host" ]; then
-	dbc_source_host=$(hostname -f)
-      fi
 
       tmpfile=$(mktemp)
       cat > $tmpfile <<CONFIG

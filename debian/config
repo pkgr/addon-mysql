@@ -68,8 +68,12 @@ fi
 db_input medium ${APP_NAME}/mysql/db_name || true
 db_go
 
-db_subst ${APP_NAME}/mysql/db_source_host default "$(hostname -f)"
-db_fset ${APP_NAME}/mysql/db_source_host seen false
-db_input medium ${APP_NAME}/mysql/db_source_host || true
-db_go
+if [ "$dbc_host" = "127.0.0.1" || "$dbc_host" = "localhost" ]; then
+  # do not ask for source host
+else
+  db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
+  db_fset ${APP_NAME}/mysql/db_source_host seen false
+  db_input high ${APP_NAME}/mysql/db_source_host || true
+  db_go
+fi
 
