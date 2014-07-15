@@ -15,9 +15,9 @@ if [ "$RET" = "false" ]; then
 fi
 
 wizard() {
-  local STATE=${1:=1}
-  while [ "$STATE" != 0 -a "$STATE" != 9 ]; do
-    case "$STATE" in
+  local state=${1:=1}
+  while [ "$state" != 0 -a "$state" != 9 ]; do
+    case "$state" in
       1)
         db_input high ${APP_NAME}/mysql/db_host || true
       ;;
@@ -62,9 +62,9 @@ wizard() {
     esac
 
     if db_go; then
-      STATE=$(($STATE + 1))
+      state=$(($state + 1))
     else
-      STATE=$(($STATE - 1))
+      state=$(($state - 1))
     fi
   done
 }
