@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -e
 
 APP_NAME="_APP_NAME_"
 APP_SAFE_NAME="_APP_SAFE_NAME_"
