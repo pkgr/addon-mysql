@@ -7,8 +7,8 @@ Homepage: https://packager.io
 
 Package: _APP_NAME_-mysql
 Architecture: amd64
-Pre-Depends: mysql-client | virtual-mysql-client, debconf
+Pre-Depends: debconf
 Provides: _APP_NAME_-mysql
-Depends: ${misc:Depends}
+Depends: mysql-client | virtual-mysql-client, ${misc:Depends}
 Suggests: mysql-server
 Description: Provides MySQL dependencies for _APP_NAME_.
