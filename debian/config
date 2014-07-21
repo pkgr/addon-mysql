@@ -40,6 +40,11 @@ wizard() {
 
       6)
         db_input medium ${APP_NAME}/mysql/db_password || true
+        db_get ${APP_NAME}/mysql/db_password
+        if [ "$RET" = "" ]; then
+          dbc_password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c32;echo;)
+          db_set ${APP_NAME}/mysql/db_password "$dbc_password"
+        fi
       ;;
 
       7)
@@ -67,7 +72,10 @@ wizard() {
     fi
   done
 
-  check
+  # only check if mysql-client is already installed, which is not the case in preconfigure state
+  if which mysql &>/dev/null; then
+    check
+  fi
 }
 
 check() {
@@ -92,6 +100,7 @@ CONFIG
   set +e
   test_connection=$(mysql --defaults-file="$tmpfile" -e "select count(*) from mysql.user;")
   test_status=$?
+  set -e
 
   rm -f "$tmpfile"
 
@@ -120,13 +129,6 @@ CONFIG
       echo "MySQL configuration failed. Aborting."
       exit 1
     fi
-  fi
-  set -e
-
-  db_get ${APP_NAME}/mysql/db_password
-  if [ "$RET" = "" ]; then
-    dbc_password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c32;echo;)
-    db_set ${APP_NAME}/mysql/db_password "$dbc_password"
   fi
 }
 
