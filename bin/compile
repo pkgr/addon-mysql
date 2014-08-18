@@ -3,19 +3,16 @@
 set -e
 
 ROOT_DIR=$(dirname $(dirname $0))
-APP_NAME="$1"
-APP_VERSION="$2"
-APP_ITERATION="$3"
-APP_DIR="$4"
-APP_SAFE_NAME=${APP_NAME//-/_}
+APP_SAFE_NAME_SHORT=${APP_SAFE_NAME:0:16}
 
 find ${ROOT_DIR}/debian -type f -print0 | xargs -0 sed -i "s/_APP_NAME_/${APP_NAME}/g"
 find ${ROOT_DIR}/debian -type f -print0 | xargs -0 sed -i "s/_APP_VERSION_/${APP_VERSION}/g"
 find ${ROOT_DIR}/debian -type f -print0 | xargs -0 sed -i "s/_APP_ITERATION_/${APP_ITERATION}/g"
 find ${ROOT_DIR}/debian -type f -print0 | xargs -0 sed -i "s/_APP_SAFE_NAME_/${APP_SAFE_NAME}/g"
+find ${ROOT_DIR}/debian -type f -print0 | xargs -0 sed -i "s/_APP_SAFE_NAME_SHORT_/${APP_SAFE_NAME_SHORT}/g"
 
-if [ -f ${APP_DIR}/Gemfile.lock ]; then
-  if grep "mysql2" ${APP_DIR}/Gemfile.lock &>/dev/null; then
+if [ -f ${APP_WORKSPACE}/Gemfile.lock ]; then
+  if grep "mysql2" ${APP_WORKSPACE}/Gemfile.lock &>/dev/null; then
     sed -i "s/_DBC_DBTYPE_/mysql2/g" ${ROOT_DIR}/debian/conf/database.template 
   fi
 fi
