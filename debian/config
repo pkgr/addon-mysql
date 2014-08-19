@@ -10,60 +10,103 @@ db_capb backup
 db_input high ${APP_NAME}/mysql/autoinstall || true
 db_go
 db_get ${APP_NAME}/mysql/autoinstall
-if [ "$RET" = "false" ]; then
+autoinstall="$RET"
+
+if [ "$autoinstall" = "skip" ]; then
   exit 0
 fi
 
+input_db_password() {
+  db_input "$1" ${APP_NAME}/mysql/db_password || true
+  db_get ${APP_NAME}/mysql/db_password
+  if [ "$RET" = "" ]; then
+    dbc_password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c32;echo;)
+    db_set ${APP_NAME}/mysql/db_password "$dbc_password"
+  fi
+}
+
+input_db_name() {
+  db_input "$1" ${APP_NAME}/mysql/db_name || true
+}
+
+input_db_username() {
+  db_input "$1" ${APP_NAME}/mysql/db_username || true
+}
+
+input_db_source_host() {
+  db_get ${APP_NAME}/mysql/db_host
+  dbc_host="$RET"
+
+  if [ "$dbc_host" = "127.0.0.1" ] || [ "$dbc_host" = "localhost" ]; then
+    db_set ${APP_NAME}/mysql/db_source_host "${dbc_host}"
+  else
+    db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
+  fi
+
+  db_input high ${APP_NAME}/mysql/db_source_host || true
+}
+
+input_db_host() {
+  db_input high ${APP_NAME}/mysql/db_host || true
+}
+
+input_db_port() {
+  db_input high ${APP_NAME}/mysql/db_port || true
+}
+
 wizard() {
   local state=$(if [ -z "$1" ]; then echo 1; else echo "$1"; fi)
-  while [ "$state" != 0 -a "$state" != 9 ]; do
-    case "$state" in
-      1)
-        db_input high ${APP_NAME}/mysql/db_host || true
-      ;;
+  if [ "$autoinstall" = "use an existing database" ]; then 
+    while [ "$state" != 0 -a "$state" != 7 ]; do
+      case "$state" in
+        1)
+          input_db_host ;;
+        2)
+          input_db_port ;;
+        3) 
+          input_db_username "high" ;;
+        4)
+          input_db_password "high" ;;
+        5)
+          input_db_name "high" ;;
+        6)
+          input_db_source_host ;;
+      esac
+    else
+      while [ "$state" != 0 -a "$state" != 9 ]; do
+        case "$state" in
+          1)
+            input_db_host
+          ;;
 
-      2)
-        db_input high ${APP_NAME}/mysql/db_port || true
-      ;;
+          2)
+            input_db_port
+          ;;
 
-      3)
-        db_input high ${APP_NAME}/mysql/admin_username || true
-      ;;
+          3)
+            db_input high ${APP_NAME}/mysql/admin_username || true
+          ;;
 
-      4)
-        db_input high ${APP_NAME}/mysql/admin_password || true
-      ;;
+          4)
+            db_input high ${APP_NAME}/mysql/admin_password || true
+          ;;
 
-      5)
-        db_input medium ${APP_NAME}/mysql/db_username || true
-      ;;
+          5)
+            input_db_username "medium"
+          ;;
 
-      6)
-        db_input medium ${APP_NAME}/mysql/db_password || true
-        db_get ${APP_NAME}/mysql/db_password
-        if [ "$RET" = "" ]; then
-          dbc_password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c32;echo;)
-          db_set ${APP_NAME}/mysql/db_password "$dbc_password"
-        fi
-      ;;
+          6)
+            input_db_password "medium"
+          ;;
 
-      7)
-        db_input medium ${APP_NAME}/mysql/db_name || true
-      ;;
+          7)
+            input_db_name "medium"
+          ;;
 
-      8)
-        db_get ${APP_NAME}/mysql/db_host
-        dbc_host="$RET"
-
-        if [ "$dbc_host" = "127.0.0.1" ] || [ "$dbc_host" = "localhost" ]; then
-          db_set ${APP_NAME}/mysql/db_source_host "${dbc_host}"
-        else
-          db_set ${APP_NAME}/mysql/db_source_host "$(hostname -f)"
-        fi
-
-        db_input high ${APP_NAME}/mysql/db_source_host || true
-      ;;
-    esac
+          8)
+            input_db_source_host
+          ;;
+        esac
 
     if db_go; then
       state=$(($state + 1))
@@ -78,26 +121,36 @@ wizard() {
   fi
 }
 
-check() {
-  db_get ${APP_NAME}/mysql/db_host
-  dbc_host="$RET"
-  db_get ${APP_NAME}/mysql/db_port
-  dbc_port="$RET"
-  db_get ${APP_NAME}/mysql/admin_username
-  dbc_admin_username="$RET"
-  db_get ${APP_NAME}/mysql/admin_password
-  dbc_admin_password="$RET"
+generate_mysql_defaults_file() {
+  db_get ${APP_NAME}/mysql/${1}
+  local dbc_host="$RET"
+  db_get ${APP_NAME}/mysql/${2}
+  local dbc_port="$RET"
+  db_get ${APP_NAME}/mysql/${3}
+  local dbc_username="$RET"
+  db_get ${APP_NAME}/mysql/${4}
+  local dbc_password="$RET"
 
-  tmpfile=$(mktemp)
+  local tmpfile=$(mktemp)
   cat > $tmpfile <<CONFIG
 [client]
-password="${dbc_admin_password}"
-user="${dbc_admin_user}"
+password="${dbc_password}"
+user="${dbc_username}"
 host="${dbc_host}"
 port="${dbc_port}"
 CONFIG
+  echo $tmpfile
+}
+
+check() {
+  if [ "$autoinstall" = "use existing database" ]; then
+    local tmpfile=$(generate_mysql_defaults_file "db_host" "db_port" "db_username" "db_password")
+  else
+    local tmpfile=$(generate_mysql_defaults_file "db_host" "db_port" "admin_username" "admin_password")
+  fi
 
   set +e
+  # TODO: simple query that works in both cases
   test_connection=$(mysql --defaults-file="$tmpfile" -e "select count(*) from mysql.user;")
   test_status=$?
   set -e
