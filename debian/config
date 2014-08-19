@@ -72,48 +72,56 @@ wizard() {
         6)
           input_db_source_host ;;
       esac
-    else
-      while [ "$state" != 0 -a "$state" != 9 ]; do
-        case "$state" in
-          1)
-            input_db_host
-          ;;
+      if db_go; then
+        state=$(($state + 1))
+      else
+        state=$(($state - 1))
+      fi
+    done
 
-          2)
-            input_db_port
-          ;;
+  else
+    while [ "$state" != 0 -a "$state" != 9 ]; do
+      case "$state" in
+        1)
+          input_db_host
+        ;;
 
-          3)
-            db_input high ${APP_NAME}/mysql/admin_username || true
-          ;;
+        2)
+          input_db_port
+        ;;
 
-          4)
-            db_input high ${APP_NAME}/mysql/admin_password || true
-          ;;
+        3)
+          db_input high ${APP_NAME}/mysql/admin_username || true
+        ;;
 
-          5)
-            input_db_username "medium"
-          ;;
+        4)
+          db_input high ${APP_NAME}/mysql/admin_password || true
+        ;;
 
-          6)
-            input_db_password "medium"
-          ;;
+        5)
+          input_db_username "medium"
+        ;;
 
-          7)
-            input_db_name "medium"
-          ;;
+        6)
+          input_db_password "medium"
+        ;;
 
-          8)
-            input_db_source_host
-          ;;
-        esac
+        7)
+          input_db_name "medium"
+        ;;
 
-    if db_go; then
-      state=$(($state + 1))
-    else
-      state=$(($state - 1))
-    fi
-  done
+        8)
+          input_db_source_host
+        ;;
+      esac
+
+      if db_go; then
+        state=$(($state + 1))
+      else
+        state=$(($state - 1))
+      fi
+    done
+  fi
 
   # only check if mysql-client is already installed, which is not the case in preconfigure state
   if which mysql &>/dev/null; then
