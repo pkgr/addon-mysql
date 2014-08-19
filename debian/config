@@ -150,8 +150,7 @@ check() {
   fi
 
   set +e
-  # TODO: simple query that works in both cases
-  test_connection=$(mysql --defaults-file="$tmpfile" -e "select count(*) from mysql.user;")
+  test_connection=$(mysql --defaults-file="$tmpfile" -e "DO 0;")
   test_status=$?
   set -e
 
@@ -186,5 +185,3 @@ check() {
 }
 
 wizard
-
-
