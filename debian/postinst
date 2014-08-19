@@ -15,6 +15,8 @@ set -e
 # the debian-policy package
 
 APP_NAME="_APP_NAME_"
+APP_USER="_APP_USER_"
+APP_GROUP="_APP_GROUP_"
 TEMPLATE="/usr/share/${APP_NAME}-mysql/templates/database.template"
 OUTPUT="/etc/${APP_NAME}/conf.d/database"
 
@@ -44,9 +46,24 @@ generate_database_template() {
 
   if [ "$dbc_ssl" = "true" ] ; then
     local query=()
-    if [ ! -z "$dbc_ssl_ca" ]; then query+=("sslca=${dbc_ssl_ca}"); fi
-    if [ ! -z "$dbc_ssl_cert" ]; then query+=("sslcert=${dbc_ssl_cert}"); fi
-    if [ ! -z "$dbc_ssl_key" ]; then query+=("sslkey=${dbc_ssl_key}"); fi
+    if [ ! -z "$dbc_ssl_ca" ]; then
+      local dst_ca_cert="/etc/${APP_NAME}/mysql/ca-cert.pem"
+      cp -f "$dbc_ssl_ca" "$dst_ca_cert"
+      query+=("sslca=${dst_ca_cert}")
+    fi
+    if [ ! -z "$dbc_ssl_cert" ]; then
+      local dst_ssl_cert="/etc/${APP_NAME}/mysql/client-cert.pem"
+      cp -f "$dbc_ssl_cert" "$dst_ssl_cert"
+      query+=("sslcert=${dst_ssl_cert}")
+    fi
+    if [ ! -z "$dbc_ssl_key" ]; the
+      local dst_ssl_key="/etc/${APP_NAME}/mysql/client-key.pem"
+      cp -f "$dbc_ssl_key" "$dst_ssl_key"
+      chmod 0600 "$dst_ssl_key"
+      query+=("sslkey=${dst_ssl_key}")
+    fi
+    chown ${APP_USER}.${APP_GROUP} /etc/${APP_NAME}/mysql/*.pem
+
     query=$(join \& "${query[@]}")
     query="?${query}"
     # safe query
