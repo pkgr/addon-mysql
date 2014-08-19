@@ -56,7 +56,7 @@ generate_database_template() {
       cp -f "$dbc_ssl_cert" "$dst_ssl_cert"
       query+=("sslcert=${dst_ssl_cert}")
     fi
-    if [ ! -z "$dbc_ssl_key" ]; the
+    if [ ! -z "$dbc_ssl_key" ]; then
       local dst_ssl_key="/etc/${APP_NAME}/mysql/client-key.pem"
       cp -f "$dbc_ssl_key" "$dst_ssl_key"
       chmod 0600 "$dst_ssl_key"
