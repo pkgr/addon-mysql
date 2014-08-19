@@ -35,12 +35,13 @@ join() {
 generate_database_template() {
   local tmpfile=$(mktemp)
   cp "${TEMPLATE}" "${tmpfile}"
-  sed -i "s/_DBC_DBTYPE_/mysql/g" ${tmpfile}
-  sed -i "s/_DBC_DBUSER_/${dbc_username}/g" ${tmpfile}
-  sed -i "s/_DBC_DBPASS_/${dbc_password}/g" ${tmpfile}
-  sed -i "s/_DBC_DBSERVER_/${dbc_host}/g" ${tmpfile}
-  sed -i "s/_DBC_DBPORT_/${dbc_port}/g" ${tmpfile}
-  sed -i "s/_DBC_DBNAME_/${dbc_name}/g" ${tmpfile}
+  sed -i "s|_DBC_DBTYPE_|mysql|g" ${tmpfile}
+  sed -i "s|_DBC_DBUSER_|${dbc_username}|g" ${tmpfile}
+  sed -i "s|_DBC_DBPASS_|${dbc_password}|g" ${tmpfile}
+  sed -i "s|_DBC_DBSERVER_|${dbc_host}|g" ${tmpfile}
+  sed -i "s|_DBC_DBPORT_|${dbc_port}|g" ${tmpfile}
+  sed -i "s|_DBC_DBNAME_|${dbc_name}|g" ${tmpfile}
+
   if [ "$dbc_ssl" = "true" ]; then
     local query=()
     if [ ! -z "$dbc_ssl_ca" ]; then query+=("sslca=${dbc_ssl_ca}"); fi
@@ -50,7 +51,7 @@ generate_database_template() {
   else
     local query=""
   fi
-  sed -i "s/_DBC_QUERY_/${query}/g" ${tmpfile}
+  sed -i "s|_DBC_QUERY_|${query}|g" ${tmpfile}
 
   echo "Generating ${OUTPUT}..."
   mv "${tmpfile}" "${OUTPUT}"
