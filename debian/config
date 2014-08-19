@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 APP_NAME="_APP_NAME_"
 APP_SAFE_NAME="_APP_SAFE_NAME_"
@@ -157,6 +157,7 @@ check() {
     local tmpfile=$(generate_mysql_defaults_file "db_host" "db_port" "admin_username" "admin_password")
   fi
 
+  cat $tmpfile
   set +e
   test_connection=$(mysql --defaults-file="$tmpfile" -e "DO 0;")
   test_status=$?
