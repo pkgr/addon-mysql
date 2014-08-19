@@ -41,20 +41,20 @@ Template: _APP_NAME_/mysql/db_username
 Type: string
 Default: _APP_SAFE_NAME_SHORT_
 Description: Username used by _APP_NAME_ to connect to the MySQL server:
- Choose the username that will be used by _APP_NAME_ to connect to your MySQL server.
+ Enter the username used by _APP_NAME_ to connect to your MySQL server.
 
 Template: _APP_NAME_/mysql/db_password
 Type: password
 Description: Password used by _APP_NAME_ to connect to the MySQL server:
- Enter the password that will be used by _APP_NAME_  to connect to your MySQL server.
+ Enter the password used by _APP_NAME_  to connect to your MySQL server.
  .
- If left blank, a random password will be generated for you.
+ If you chose to create a new database, leave blank to generate a random password.
 
 Template: _APP_NAME_/mysql/db_name
 Type: string
 Default: _APP_SAFE_NAME_
-Description: Name of the database to create for _APP_NAME_:
- Choose the name of the database that will host the data of _APP_NAME_.
+Description: Name of the database for _APP_NAME_:
+ Name of the database that will host the data of _APP_NAME_.
  .
  If the database already exists, it will be reused.
 
