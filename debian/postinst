@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -ex
 
@@ -42,12 +42,15 @@ generate_database_template() {
   sed -i "s|_DBC_DBPORT_|${dbc_port}|g" ${tmpfile}
   sed -i "s|_DBC_DBNAME_|${dbc_name}|g" ${tmpfile}
 
-  if [ "$dbc_ssl" = "true" ]; then
+  if [ "$dbc_ssl" = "true" ] ; then
     local query=()
     if [ ! -z "$dbc_ssl_ca" ]; then query+=("sslca=${dbc_ssl_ca}"); fi
     if [ ! -z "$dbc_ssl_cert" ]; then query+=("sslcert=${dbc_ssl_cert}"); fi
     if [ ! -z "$dbc_ssl_key" ]; then query+=("sslkey=${dbc_ssl_key}"); fi
     query=$(join \& "${query[@]}")
+    query="?${query}"
+    # safe query
+    query=$(printf '%s\n' "$query" | sed 's/[[|\.*^$/&]/\\&/g')
   else
     local query=""
   fi
