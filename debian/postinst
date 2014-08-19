@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -ex
 
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>
@@ -28,6 +28,8 @@ mysql_execute() {
   mysql --defaults-file="$defaults_file" -e "$command"
 }
 
+function join { local IFS="$1"; shift; echo "$*"; }
+
 generate_database_template() {
   local tmpfile=$(mktemp)
   cp "${TEMPLATE}" "${tmpfile}"
@@ -37,6 +39,17 @@ generate_database_template() {
   sed -i "s/_DBC_DBSERVER_/${dbc_host}/g" ${tmpfile}
   sed -i "s/_DBC_DBPORT_/${dbc_port}/g" ${tmpfile}
   sed -i "s/_DBC_DBNAME_/${dbc_name}/g" ${tmpfile}
+  if [ "$dbc_ssl" = "true" ]; then
+    local query=()
+    if [ ! -z "$dbc_ssl_ca" ]; then query+=("sslca=${dbc_ssl_ca}"); fi
+    if [ ! -z "$dbc_ssl_cert" ]; then query+=("sslcert=${dbc_ssl_cert}"); fi
+    if [ ! -z "$dbc_ssl_key" ]; then query+=("sslkey=${dbc_ssl_key}"); fi
+    query=$(join \& "${query[@]}")
+  else
+    local query=""
+  fi
+  sed -i "s/_DBC_QUERY_/${query}/g" ${tmpfile}
+
   echo "Generating ${OUTPUT}..."
   mv "${tmpfile}" "${OUTPUT}"
 }
@@ -64,6 +77,17 @@ case "$1" in
       db_get ${APP_NAME}/mysql/db_source_host
       dbc_source_host="$RET"
 
+      # SSL settings
+      db_get ${APP_NAME}/mysql/ssl
+      dbc_ssl="$RET"
+      db_get ${APP_NAME}/mysql/ssl_ca
+      dbc_ssl_ca="$RET"
+      db_get ${APP_NAME}/mysql/ssl_cert
+      dbc_ssl_cert="$RET"
+      db_get ${APP_NAME}/mysql/ssl_key
+      dbc_ssl_key="$RET"
+
+      # Create the user and database if needed
       if [ "$autoinstall" = "create a new database" ]; then
 	db_get ${APP_NAME}/mysql/admin_username
 	dbc_admin_username="$RET"
