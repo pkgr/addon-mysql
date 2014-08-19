@@ -1,6 +1,6 @@
 Template: _APP_NAME_/mysql/autoinstall
 Type: select
-Choices: skip,use an existing database,create a new database 
+Choices: skip, use an existing database, create a new database 
 Default: skip
 Description: Do you want to use this wizard to help setup your MySQL database?
  If you want, we can automatically create the MySQL database required by _APP_NAME_.
