@@ -54,6 +54,30 @@ input_db_port() {
   db_input high ${APP_NAME}/mysql/db_port || true
 }
 
+wizard_ssl() {
+  local state=1;
+  db_input high ${APP_NAME}/mysql/ssl || true
+  db_go
+  db_get ${APP_NAME}/mysql/ssl
+  if [ "$RET" = "true" ]; then
+    while [ "$state" != 0 -a "$state" != 4 ]; do
+      case "$state" in
+        1)
+          db_input high ${APP_NAME}/mysql/ssl_cert || true ;;
+        2)
+          db_input high ${APP_NAME}/mysql/ssl_key || true ;;
+        3)
+          db_input high ${APP_NAME}/mysql/ssl_ca || true ;;
+      esac
+      if db_go; then
+        state=$(($state + 1))
+      else
+        state=$(($state - 1))
+      fi
+    done
+  fi
+}
+
 wizard() {
   local state=$(if [ -z "$1" ]; then echo 1; else echo "$1"; fi)
   if [ "$autoinstall" = "use an existing database" ]; then 
@@ -122,6 +146,8 @@ wizard() {
       fi
     done
   fi
+
+  wizard_ssl
 
   # only check if mysql-client is already installed, which is not the case in preconfigure state
   if which mysql &>/dev/null; then

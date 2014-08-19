@@ -63,3 +63,22 @@ Type: string
 Description: FQDN of the source server:
  Enter the fully qualified domain name of the local machine.
 
+Template: _APP_NAME_/mysql/ssl
+Type: boolean
+Default: false
+Description: Do you want to enable SSL support for your MySQL connection?
+
+Template: _APP_NAME_/mysql/ssl_ca
+Type: string
+Description: Path to the CA bundle (leave blank if none):
+
+Template: _APP_NAME_/mysql/ssl_key
+Type: string
+Default: /etc/ssl/private/example.com.key
+Description: Path to the private SSL key to use:
+
+Template: _APP_NAME_/mysql/ssl_cert
+Type: string
+Default: /etc/ssl/certs/example.com.crt
+Description: Path to the SSL certificate to use:
+
