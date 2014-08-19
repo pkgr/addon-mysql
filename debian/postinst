@@ -48,18 +48,17 @@ generate_database_template() {
     local query=()
     if [ ! -z "$dbc_ssl_ca" ]; then
       local dst_ca_cert="/etc/${APP_NAME}/mysql/ca-cert.pem"
-      cp -f "$dbc_ssl_ca" "$dst_ca_cert"
+      if [ -f "$dbc_ssl_ca" ]; then cp -f "$dbc_ssl_ca" "$dst_ca_cert"; fi
       query+=("sslca=${dst_ca_cert}")
     fi
     if [ ! -z "$dbc_ssl_cert" ]; then
       local dst_ssl_cert="/etc/${APP_NAME}/mysql/client-cert.pem"
-      cp -f "$dbc_ssl_cert" "$dst_ssl_cert"
+      if [ -f "$dbc_ssl_cert" ]; then cp -f "$dbc_ssl_cert" "$dst_ssl_cert"; fi
       query+=("sslcert=${dst_ssl_cert}")
     fi
     if [ ! -z "$dbc_ssl_key" ]; then
       local dst_ssl_key="/etc/${APP_NAME}/mysql/client-key.pem"
-      cp -f "$dbc_ssl_key" "$dst_ssl_key"
-      chmod 0600 "$dst_ssl_key"
+      if [ -f "$dbc_ssl_key" ]; then cp -f "$dbc_ssl_key" "$dst_ssl_key" && chmod 0600 "$dst_ssl_key"; fi
       query+=("sslkey=${dst_ssl_key}")
     fi
     chown ${APP_USER}.${APP_GROUP} /etc/${APP_NAME}/mysql/*.pem
