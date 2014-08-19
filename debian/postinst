@@ -108,6 +108,13 @@ user="${dbc_admin_username}"
 host="${dbc_host}"
 port="${dbc_port}"
 CONFIG
+	if [ "$dbc_ssl" = "true" ]; then
+	  cat >> $tmpfile <<CONFIG
+ssl-ca="${dbc_ssl_ca}"
+ssl-cert="${dbc_ssl_cert}"
+ssl-key="${dbc_ssl_key}"
+CONFIG
+	fi
 
 	db_get ${APP_NAME}/mysql/retry || true
 	retry_ignore_abort="$RET"
