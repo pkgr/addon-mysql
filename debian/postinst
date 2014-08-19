@@ -28,7 +28,9 @@ mysql_execute() {
   mysql --defaults-file="$defaults_file" -e "$command"
 }
 
-function join { local IFS="$1"; shift; echo "$*"; }
+join() { 
+  local IFS="$1"; shift; echo "$*";
+}
 
 generate_database_template() {
   local tmpfile=$(mktemp)
