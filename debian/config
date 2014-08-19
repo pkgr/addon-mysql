@@ -189,6 +189,7 @@ ssl-ca="${dbc_ssl_ca}"
 ssl-cert="${dbc_ssl_cert}"
 ssl-key="${dbc_ssl_key}"
 CONFIG
+  fi
 
   echo $tmpfile
 }
