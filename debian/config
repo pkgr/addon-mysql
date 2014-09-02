@@ -7,15 +7,6 @@ APP_SAFE_NAME="_APP_SAFE_NAME_"
 . /usr/share/debconf/confmodule
 db_capb backup
 
-db_input high ${APP_NAME}/mysql/autoinstall || true
-db_go
-db_get ${APP_NAME}/mysql/autoinstall
-autoinstall="$RET"
-
-if [ "$autoinstall" = "skip" ]; then
-  exit 0
-fi
-
 input_db_password() {
   db_input "$1" ${APP_NAME}/mysql/db_password || true
   db_get ${APP_NAME}/mysql/db_password
@@ -78,7 +69,21 @@ wizard_ssl() {
   fi
 }
 
+input_installation_type() {
+  db_input high ${APP_NAME}/mysql/autoinstall || true
+  db_go
+  db_get ${APP_NAME}/mysql/autoinstall
+  autoinstall="$RET"
+
+  if [ "$autoinstall" = "skip" ]; then
+    exit 0
+  fi
+}
+
+
 wizard() {
+  input_installation_type
+
   local state=$(if [ -z "$1" ]; then echo 1; else echo "$1"; fi)
   if [ "$autoinstall" = "use an existing database" ]; then 
     while [ "$state" != 0 -a "$state" != 7 ]; do
@@ -147,11 +152,15 @@ wizard() {
     done
   fi
 
-  wizard_ssl
-
-  # only check if mysql-client is already installed, which is not the case in preconfigure state
-  if which mysql &>/dev/null; then
-    check
+  # Re-display full wizard from start if we're at state 0
+  if [ "$state" == 0 ]; then
+    wizard
+  else
+    wizard_ssl
+    # only check if mysql-client is already installed, which is not the case in preconfigure state
+    if which mysql &>/dev/null; then
+      check
+    fi
   fi
 }
 
