@@ -1,0 +1,199 @@
+#!/bin/bash
+
+set -e
+
+echo "Configuring"
+echo $APP_NAME
+echo $INSTALLER_DIR
+
+. "${INSTALLER_DIR}/wizard"
+
+input_start() {
+	# returns an error only if key can't be found
+	wiz_put "mysql/autoinstall"
+	# is true when user clicked OK, or false if user clicked CANCEL, ESC, etc.
+	if wiz_ask ; then
+		RET=$(wiz_get "mysql/autoinstall")
+		case "$RET" in
+			"skip")
+				STATE="done"
+				;;
+			"install")
+				STATE="done"
+				wiz_set "mysql/db_host" "127.0.0.1"
+				wiz_set "mysql/db_port" "3306"
+				wiz_set "mysql/db_name" "${APP_SAFE_NAME}"
+				wiz_set "mysql/db_username" "${APP_SAFE_NAME:0:16}"
+				wiz_get "mysql/db_password" || wiz_set "mysql/db_password" "$(wiz_random_password 32)"
+				wiz_set "mysql/db_source_host" "127.0.0.1"
+				wiz_set "mysql/ssl" "false"
+				;;
+			"reuse")
+				case $(wiz_fact "osfamily") in
+					"debian")
+						wiz_check_package "mysql-client" || wiz_install_deb "mysql-client"
+						;;
+					"redhat")
+						wiz_check_package "mysql" || wiz_install_rpm "mysql"
+						;;
+				esac
+				STATE="mysql_params_host"
+				;;
+		esac
+	else
+		STATE="done"
+		echo "MySQL configuration canceled."
+		exit 1
+	fi
+}
+
+input_mysql_params_host() {
+	wiz_put "mysql/db_host"
+	wiz_put "mysql/db_port"
+
+	if wiz_ask ; then
+		STATE="mysql_params_user"
+	else
+		STATE="start"
+	fi
+}
+
+input_mysql_params_user() {
+	wiz_put "mysql/db_username"
+	wiz_put "mysql/db_password"
+
+	if wiz_ask ; then
+		STATE="mysql_params_source"
+	else
+		STATE="mysql_params_host"
+	fi
+}
+
+input_mysql_params_source() {
+	local dbc_host=$(wiz_get "mysql/db_host")
+	if [ "$dbc_host" = "127.0.0.1" ] || [ "$dbc_host" = "localhost" ]; then
+		wiz_set "mysql/db_source_host" "${dbc_host}"
+	else
+		wiz_set "mysql/db_source_host" "$(hostname -f)"
+	fi
+
+	wiz_put "mysql/db_source_host"
+	if wiz_ask ; then
+		STATE="mysql_params_ssl"
+	else
+		STATE="mysql_params_user"
+	fi
+}
+
+input_mysql_params_ssl() {
+	wiz_put "mysql/ssl"
+	if wiz_ask ; then
+		if [ "$(wiz_get "mysql/ssl")" = "true" ] ; then
+			wiz_put "mysql/ssl_cert"
+			wiz_put "mysql/ssl_key"
+			wiz_put "mysql/ssl_ca"
+			if ! wiz_ask ; then
+				STATE="mysql_params_source"
+				return
+			fi
+		fi
+		STATE="check"
+	else
+		STATE="mysql_params_source"
+	fi
+}
+
+generate_mysql_defaults_file() {
+	local dbc_host="$(wiz_get "mysql/$1")"
+	local dbc_port="$(wiz_get "mysql/$2")"
+	local dbc_username="$(wiz_get "mysql/$3")"
+	local dbc_password="$(wiz_get "mysql/$4")"
+	local dbc_ssl="$(wiz_get "mysql/ssl")"
+	local dbc_ssl_ca="$(wiz_get "mysql/ssl_ca")"
+	local dbc_ssl_cert="$(wiz_get "mysql/ssl_cert")"
+	local dbc_ssl_key="$(wiz_get "mysql/ssl_key")"
+
+	local tmpfile=$(mktemp)
+
+	cat > $tmpfile <<CONFIG
+[client]
+password="${dbc_password}"
+user="${dbc_username}"
+host="${dbc_host}"
+port="${dbc_port}"
+CONFIG
+
+	if [ "$dbc_ssl" = "true" ]; then
+		cat >> $tmpfile <<CONFIG
+ssl-ca="${dbc_ssl_ca}"
+ssl-cert="${dbc_ssl_cert}"
+ssl-key="${dbc_ssl_key}"
+CONFIG
+	fi
+
+	echo $tmpfile
+}
+
+input_check() {
+	local tmpfile=$(generate_mysql_defaults_file "db_host" "db_port" "db_username" "db_password")
+	trap "rm -f $tmpfile" EXIT
+
+	wiz_debug "$tmpfile"
+
+	if mysql --defaults-file="$tmpfile" -e "DO 0;" ; then
+		echo "MySQL connection OK"
+	else
+		wiz_put "mysql/retry"
+		if wiz_ask ; then
+			case "$(wiz_get "mysql/retry")" in
+				"retry")
+					STATE="start"
+					;;
+				"ignore")
+					echo "MySQL configuration failed. Ignoring."
+					STATE="done"
+					;;
+				*)
+					echo "MySQL configuration failed. Aborting."
+					STATE="done"
+					exit 1
+					;;
+			esac
+		else
+			STATE="start"
+		fi
+	fi
+}
+
+state_machine() {
+	case "$1" in
+		"start")
+			input_start
+			;;
+		"mysql_params_host")
+			input_mysql_params_host
+			;;
+		"mysql_params_user")
+			input_mysql_params_user
+			;;
+		"mysql_params_source")
+			input_mysql_params_source
+			;;
+		"mysql_params_ssl")
+			input_mysql_params_ssl
+			;;
+		"check")
+			input_check
+			;;
+		"done")
+			echo "DONE"
+			break
+			;;
+		*)
+			echo "invalid state ${STATE}"
+			break
+			;;
+	esac
+}
+
+wizard "start"

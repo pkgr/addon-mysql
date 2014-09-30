@@ -1,0 +1,102 @@
+#!/bin/bash
+
+set -e
+
+. "${INSTALLER_DIR}/wizard"
+
+create_database() {
+	local root_password=$(wiz_get "mysql/root_password")
+	local dbc_host=$(wiz_get "mysql/db_host")
+	local dbc_port=$(wiz_get "mysql/db_port")
+	local dbc_username=$(wiz_get "mysql/db_username")
+	local dbc_password=$(wiz_get "mysql/db_password")
+	local dbc_name=$(wiz_get "mysql/db_name")
+	local dbc_source_host=$(wiz_get "mysql/db_source_host")
+
+	if [ -z "$root_password" ] ; then
+		echo "Can't find the root password to create the MySQL database"
+		exit 1
+	else
+		cat <<MYSQL | mysql -uroot -p${root_password}
+CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;
+GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_source_host}' IDENTIFIED BY '${dbc_password}';
+GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_source_host}';
+FLUSH PRIVILEGES;
+MYSQL
+	fi
+}
+
+TEMPLATE="files/database.template"
+OUTPUT="/etc/${APP_NAME}/conf.d/database"
+
+generate_database_template() {
+	local addon_conf_dir="/etc/${APP_NAME}/addons/mysql"
+	local tmpfile=$(mktemp)
+	local dbc_type="mysql"
+	local dbc_host=$(wiz_get "mysql/db_host")
+	local dbc_port=$(wiz_get "mysql/db_port")
+	local dbc_username=$(wiz_get "mysql/db_username")
+	local dbc_password=$(wiz_get "mysql/db_password")
+	local dbc_name=$(wiz_get "mysql/db_name")
+	local dbc_source_host=$(wiz_get "mysql/db_source_host")_
+
+	cp "${TEMPLATE}" "${tmpfile}"
+
+	if [ -f ${APP_HOME}/Gemfile.lock ] ; then
+	  if grep -q "mysql2" ${APP_HOME}/Gemfile.lock ; then
+		  dbc_type="mysql2"
+	  fi
+	fi
+
+	sed -i "s|_DBC_DBTYPE_|${dbc_type}|g" ${tmpfile}
+	sed -i "s|_DBC_DBUSER_|${dbc_username}|g" ${tmpfile}
+	sed -i "s|_DBC_DBPASS_|${dbc_password}|g" ${tmpfile}
+	sed -i "s|_DBC_DBSERVER_|${dbc_host}|g" ${tmpfile}
+	sed -i "s|_DBC_DBPORT_|${dbc_port}|g" ${tmpfile}
+	sed -i "s|_DBC_DBNAME_|${dbc_name}|g" ${tmpfile}
+
+	if [ "$dbc_ssl" = "true" ] ; then
+		local query=()
+		if [ ! -z "$dbc_ssl_ca" ]; then
+			local dst_ca_cert="${addon_conf_dir}/ca-cert.pem"
+			cp -f "$dbc_ssl_ca" "$dst_ca_cert" || true
+			query+=("sslca=${dst_ca_cert}")
+		fi
+		if [ ! -z "$dbc_ssl_cert" ]; then
+			local dst_ssl_cert="${addon_conf_dir}/client-cert.pem"
+			cp -f "$dbc_ssl_cert" "$dst_ssl_cert" || true
+			query+=("sslcert=${dst_ssl_cert}")
+		fi
+		if [ ! -z "$dbc_ssl_key" ]; then
+			local dst_ssl_key="${addon_conf_dir}/client-key.pem"
+			( cp -f "$dbc_ssl_key" "$dst_ssl_key" && chmod 0600 "$dst_ssl_key" ) || true
+			query+=("sslkey=${dst_ssl_key}")
+		fi
+		chown ${APP_USER}.${APP_GROUP} ${addon_conf_dir}/*.pem || true
+
+		query=$(wiz_join \& "${query[@]}")
+		query="?${query}"
+		# safe query
+		query=$(printf '%s\n' "$query" | sed 's/[[|\.*^$/&]/\\&/g')
+	else
+		local query=""
+	fi
+	sed -i "s|_DBC_QUERY_|${query}|g" ${tmpfile}
+
+	echo "Generating ${OUTPUT}..."
+	mv "${tmpfile}" "${OUTPUT}"
+}
+
+case "$(wiz_get "mysql/autoinstall")" in
+	"reuse")
+		generate_database_template
+		;;
+	"install")
+		create_database
+		generate_database_template
+		;;
+	*)
+		;;
+esac
+
+exit 0

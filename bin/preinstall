@@ -1,0 +1,63 @@
+#!/bin/bash
+
+set -e
+
+. "${INSTALLER_DIR}/wizard"
+
+install_mysql_server() {
+	MYSQL_ROOT_PASSWORD="$(wiz_random_password 16)"
+        local db_source_host=$(wiz_get "mysql/db_source_host")
+	case $(wiz_fact "osfamily") in
+		"debian")
+			if ! wiz_check_package "mysql-server" ; then
+				wiz_set "mysql/root_password" "$MYSQL_ROOT_PASSWORD"
+				debconf-set-selections <<CONFIG
+mysql-server-5.5 mysql-server/root_password password ${MYSQL_ROOT_PASSWORD}
+mysql-server-5.5 mysql-server/root_password_again password ${MYSQL_ROOT_PASSWORD}
+CONFIG
+				apt-get install mysql-server -y --force-yes
+			fi
+			;;
+		"redhat")
+			local package="mysql-server"
+			local service="mysqld"
+			if ! yum info "${package}" &>/dev/null ; then
+				package="mariadb-server"
+				service="mariadb"
+			fi
+			if ! wiz_check_package "${package}" ; then
+				wiz_set "mysql/root_password" "$MYSQL_ROOT_PASSWORD"
+			        # http://www.rackspace.com/knowledge_center/article/installing-mysql-server-on-centos
+				yum install -y "${package}"
+				service $service start
+				chkconfig $service on
+				mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
+				mysqladmin -u root --password="${MYSQL_ROOT_PASSWORD}" password "${MYSQL_ROOT_PASSWORD}"
+		       fi
+		       ;;
+
+	esac
+}
+
+create_conf_dir() {
+	local dir="/etc/${APP_NAME}/addons/mysql"
+	mkdir -p "$dir"
+	chown -R ${APP_USER}.${APP_GROUP} "$dir"
+}
+
+create_conf_dir
+
+case "$(wiz_get "mysql/autoinstall")" in
+	"skip")
+		;;
+	"install")
+		install_mysql_server
+		;;
+	"reuse")
+		;;
+	*)
+		echo "Unknown value for mysql/autoinstall"
+		;;
+esac
+
+exit 0
