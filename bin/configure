@@ -2,10 +2,6 @@
 
 set -e
 
-echo "Configuring"
-echo $APP_NAME
-echo $INSTALLER_DIR
-
 . "${INSTALLER_DIR}/wizard"
 
 input_start() {
