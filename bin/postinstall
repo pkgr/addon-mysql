@@ -85,6 +85,7 @@ generate_database_template() {
 
 	echo "Generating ${OUTPUT}..."
 	mv "${tmpfile}" "${OUTPUT}"
+	chown ${APP_USER}.${APP_GROUP} "$OUTPUT"
 }
 
 case "$(wiz_get "mysql/autoinstall")" in
