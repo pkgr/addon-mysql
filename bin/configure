@@ -57,6 +57,7 @@ input_mysql_params_host() {
 input_mysql_params_user() {
 	wiz_put "mysql/db_username"
 	wiz_put "mysql/db_password"
+	wiz_put "mysql/db_name"
 
 	if wiz_ask ; then
 		STATE="mysql_params_source"
