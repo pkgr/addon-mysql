@@ -55,7 +55,7 @@ generate_database_template() {
 	sed -i "s|_DBC_DBPORT_|${dbc_port}|g" ${tmpfile}
 	sed -i "s|_DBC_DBNAME_|${dbc_name}|g" ${tmpfile}
 
-	if [ "$dbc_ssl" = "true" ] ; then
+	if [ "$dbc_ssl" = "yes" ] ; then
 		local query=()
 		if [ ! -z "$dbc_ssl_ca" ]; then
 			local dst_ca_cert="${addon_conf_dir}/ca-cert.pem"

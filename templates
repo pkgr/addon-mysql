@@ -65,8 +65,10 @@ Description: FQDN of the source server:
  Enter the fully qualified domain name of the local machine.
 
 Template: mysql/ssl
-Type: boolean
-Default: false
+Type: select
+Choices: no, yes
+Translations: No, Yes
+Default: no
 Description: Do you want to enable SSL support for your MySQL connection?
 
 Template: mysql/ssl_ca
