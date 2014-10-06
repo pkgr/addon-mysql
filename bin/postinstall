@@ -38,7 +38,12 @@ generate_database_template() {
 	local dbc_username=$(wiz_get "mysql/db_username")
 	local dbc_password=$(wiz_get "mysql/db_password")
 	local dbc_name=$(wiz_get "mysql/db_name")
-	local dbc_source_host=$(wiz_get "mysql/db_source_host")_
+	local dbc_source_host=$(wiz_get "mysql/db_source_host")
+	local dbc_ssl="$(wiz_get "mysql/ssl")"
+	local dbc_ssl_ca="$(wiz_get "mysql/ssl_ca")"
+	local dbc_ssl_cert="$(wiz_get "mysql/ssl_cert")"
+	local dbc_ssl_key="$(wiz_get "mysql/ssl_key")"
+
 
 	cp "${TEMPLATE}" "${tmpfile}"
 
