@@ -22,7 +22,7 @@ input_start() {
 				wiz_set "mysql/db_username" "${APP_SAFE_NAME:0:16}"
 				wiz_get "mysql/db_password" || wiz_set "mysql/db_password" "$(wiz_random_password 32)"
 				wiz_set "mysql/db_source_host" "127.0.0.1"
-				wiz_set "mysql/ssl" "false"
+				wiz_set "mysql/ssl" "no"
 				;;
 			"reuse")
 				case $(wiz_fact "osfamily") in
@@ -85,7 +85,7 @@ input_mysql_params_source() {
 input_mysql_params_ssl() {
 	wiz_put "mysql/ssl"
 	if wiz_ask ; then
-		if [ "$(wiz_get "mysql/ssl")" = "true" ] ; then
+		if [ "$(wiz_get "mysql/ssl")" = "yes" ] ; then
 			wiz_put "mysql/ssl_cert"
 			wiz_put "mysql/ssl_key"
 			wiz_put "mysql/ssl_ca"
@@ -120,7 +120,7 @@ host="${dbc_host}"
 port="${dbc_port}"
 CONFIG
 
-	if [ "$dbc_ssl" = "true" ]; then
+	if [ "$dbc_ssl" = "yes" ]; then
 		cat >> $tmpfile <<CONFIG
 ssl-ca="${dbc_ssl_ca}"
 ssl-cert="${dbc_ssl_cert}"
