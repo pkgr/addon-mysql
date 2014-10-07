@@ -25,14 +25,6 @@ input_start() {
 				wiz_set "mysql/ssl" "no"
 				;;
 			"reuse")
-				case $(wiz_fact "osfamily") in
-					"debian")
-						wiz_check_package "mysql-client" || wiz_install_deb "mysql-client"
-						;;
-					"redhat")
-						wiz_check_package "mysql" || wiz_install_rpm "mysql"
-						;;
-				esac
 				STATE="mysql_params_host"
 				;;
 		esac
@@ -132,6 +124,15 @@ CONFIG
 }
 
 input_check() {
+	case $(wiz_fact "osfamily") in
+		"debian")
+			wiz_check_package "mysql-client" || wiz_install_deb "mysql-client"
+			;;
+		"redhat")
+			wiz_check_package "mysql" || wiz_install_rpm "mysql"
+			;;
+	esac
+
 	local tmpfile=$(generate_mysql_defaults_file "db_host" "db_port" "db_username" "db_password")
 	trap "rm -f $tmpfile" EXIT
 
