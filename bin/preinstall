@@ -4,6 +4,13 @@ set -e
 
 . "${INSTALLER_DIR}/wizard"
 
+load_tzinfo_to_mysql() {
+	local root_password="$1"
+	if [ -d "/usr/share/zoneinfo" ] && which mysql_tzinfo_to_sql &>/dev/null ; then
+		mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p${root_password}
+	fi
+}
+
 install_mysql_server() {
 	MYSQL_ROOT_PASSWORD="$(wiz_random_password 16)"
         local db_source_host=$(wiz_get "mysql/db_source_host")
@@ -16,6 +23,7 @@ mysql-server-5.5 mysql-server/root_password password ${MYSQL_ROOT_PASSWORD}
 mysql-server-5.5 mysql-server/root_password_again password ${MYSQL_ROOT_PASSWORD}
 CONFIG
 				apt-get install mysql-server -y --force-yes
+				load_tzinfo_to_mysql "${MYSQL_ROOT_PASSWORD}"
 			fi
 			;;
 		"redhat")
@@ -33,6 +41,7 @@ CONFIG
 				chkconfig $service on
 				mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
 				mysqladmin -u root --password="${MYSQL_ROOT_PASSWORD}" password "${MYSQL_ROOT_PASSWORD}"
+				load_tzinfo_to_mysql "${MYSQL_ROOT_PASSWORD}"
 		       fi
 		       ;;
 
