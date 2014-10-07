@@ -141,6 +141,7 @@ input_check() {
 
 	if mysql --defaults-file="$tmpfile" -e "DO 0;" ; then
 		echo "MySQL connection OK"
+		STATE="done"
 	else
 		wiz_put "mysql/retry"
 		if wiz_ask ; then
