@@ -20,7 +20,7 @@ input_start() {
 				wiz_set "mysql/db_port" "3306"
 				wiz_set "mysql/db_name" "${APP_SAFE_NAME}"
 				wiz_set "mysql/db_username" "${APP_SAFE_NAME:0:16}"
-				wiz_get "mysql/db_password" || wiz_set "mysql/db_password" "$(wiz_random_password 32)"
+				wiz_get "mysql/db_password" &>/dev/null || wiz_set "mysql/db_password" "$(wiz_random_password 32)"
 				wiz_set "mysql/db_source_host" "127.0.0.1"
 				wiz_set "mysql/ssl" "no"
 				;;
