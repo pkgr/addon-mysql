@@ -65,6 +65,7 @@ input_mysql_params_source() {
 	else
 		wiz_set "mysql/db_source_host" "$(hostname -f)"
 	fi
+	wiz_unseen "mysql/db_source_host"
 
 	wiz_put "mysql/db_source_host"
 	if wiz_ask ; then
