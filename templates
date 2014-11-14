@@ -1,0 +1,87 @@
+Template: mysql/autoinstall
+Type: select
+Choices: skip, install, reuse
+Translations: Skip, Install and configure MySQL server locally, Use an existing database
+Default: skip
+Description: Do you want to use this wizard to help setup your MySQL database?
+ If you want, we can automatically create the MySQL database required by _APP_NAME_.
+ .
+ If you choose NOT to use this wizard, you will have to manually setup all the things related to the database.
+
+Template: mysql/retry
+Type: select
+Choices: retry, abort, ignore
+Default: abort
+Description: Connection to MySQL server failed, what do you want to do?
+ It looks like the connection to the MySQL server can't be established with the information you've specified.
+
+Template: mysql/admin_username
+Type: string
+Default: root
+Description: MySQL administrator username:
+ Enter the username of the user with privileged access to your MySQL server.
+
+Template: mysql/admin_password
+Type: password
+Description: MySQL administrator password:
+ Enter the password of the user with privileged access to your MySQL server.
+
+Template: mysql/db_host
+Type: string
+Default: 127.0.0.1
+Description: MySQL IP or hostname:
+ Enter the IP or hostname of your MySQL server.
+
+Template: mysql/db_port
+Type: string
+Default: 3306
+Description: MySQL port:
+ Enter the port where your MySQL server is listening.
+
+Template: mysql/db_username
+Type: string
+Default: _APP_SAFE_NAME_SHORT_
+Description: Username used by _APP_NAME_ to connect to the MySQL server:
+ Enter the username used by _APP_NAME_ to connect to your MySQL server.
+
+Template: mysql/db_password
+Type: password
+Description: Password used by _APP_NAME_ to connect to the MySQL server:
+ Enter the password used by _APP_NAME_  to connect to your MySQL server.
+ .
+ If you chose to create a new database, leave blank to generate a random password.
+
+Template: mysql/db_name
+Type: string
+Default: _APP_SAFE_NAME_
+Description: Name of the database for _APP_NAME_:
+ Name of the database that will host the data of _APP_NAME_.
+ .
+ If the database already exists, it will be reused.
+
+Template: mysql/db_source_host
+Type: string
+Description: FQDN of the source server:
+ Enter the fully qualified domain name of the local machine.
+
+Template: mysql/ssl
+Type: select
+Choices: no, yes
+Translations: No, Yes
+Default: no
+Description: Do you want to enable SSL support for your MySQL connection?
+
+Template: mysql/ssl_ca
+Type: string
+Description: Path to the CA bundle (leave blank if none):
+
+Template: mysql/ssl_key
+Type: string
+Default: /etc/ssl/private/example.com.key
+Description: Path to the private SSL key to use:
+
+Template: mysql/ssl_cert
+Type: string
+Default: /etc/ssl/certs/example.com.crt
+Description: Path to the SSL certificate to use:
+
