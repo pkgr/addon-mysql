@@ -45,12 +45,8 @@ CONFIG
 		       fi
 		       ;;
 	       "suse")
-			local package="mysql-server"
-			local service="mysqld"
-			if zypper info "${package}" | grep "not found" &>/dev/null ; then
-				package="mariadb"
-				service="mariadb"
-			fi
+			local package="mariadb"
+			local service="mysql"
 			if ! wiz_check_package "${package}" ; then
 				wiz_set "mysql/root_password" "$MYSQL_ROOT_PASSWORD"
 			        # http://www.rackspace.com/knowledge_center/article/installing-mysql-server-on-centos
