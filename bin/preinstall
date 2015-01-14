@@ -47,7 +47,7 @@ CONFIG
 	       "suse")
 			local package="mysql-server"
 			local service="mysqld"
-			if ! zypper info "${package}" &>/dev/null ; then
+			if zypper info "${package}" | grep "not found" &>/dev/null ; then
 				package="mariadb-server"
 				service="mariadb"
 			fi
