@@ -48,7 +48,7 @@ CONFIG
 			local package="mysql-server"
 			local service="mysqld"
 			if zypper info "${package}" | grep "not found" &>/dev/null ; then
-				package="mariadb-server"
+				package="mariadb"
 				service="mariadb"
 			fi
 			if ! wiz_check_package "${package}" ; then
