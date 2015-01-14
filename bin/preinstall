@@ -44,6 +44,25 @@ CONFIG
 				load_tzinfo_to_mysql "${MYSQL_ROOT_PASSWORD}"
 		       fi
 		       ;;
+	       "suse")
+			local package="mysql-server"
+			local service="mysqld"
+			if ! zypper info "${package}" &>/dev/null ; then
+				package="mariadb-server"
+				service="mariadb"
+			fi
+			if ! wiz_check_package "${package}" ; then
+				wiz_set "mysql/root_password" "$MYSQL_ROOT_PASSWORD"
+			        # http://www.rackspace.com/knowledge_center/article/installing-mysql-server-on-centos
+				zypper install -y "${package}"
+				service $service start
+				chkconfig $service on
+				mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
+				mysqladmin -u root --password="${MYSQL_ROOT_PASSWORD}" password "${MYSQL_ROOT_PASSWORD}"
+				load_tzinfo_to_mysql "${MYSQL_ROOT_PASSWORD}"
+		       fi
+		       ;;
+
 
 	esac
 }
