@@ -45,11 +45,14 @@ CONFIG
 		       fi
 		       ;;
 	       "suse")
+			local version="$(cat /etc/SuSE-release | grep VERSION | sed "s|.* = ||")"
 			local package="mariadb"
 			local service="mysql"
+			if [ "$version" = "11" ]; then
+				package="mysql"
+			fi
 			if ! wiz_check_package "${package}" ; then
 				wiz_set "mysql/root_password" "$MYSQL_ROOT_PASSWORD"
-			        # http://www.rackspace.com/knowledge_center/article/installing-mysql-server-on-centos
 				zypper install -y "${package}"
 				service $service start
 				chkconfig $service on
