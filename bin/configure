@@ -16,13 +16,13 @@ input_start() {
 				;;
 			"install")
 				STATE="done"
-				wiz_set "mysql/db_host" "127.0.0.1"
-				wiz_set "mysql/db_port" "3306"
-				wiz_set "mysql/db_name" "${APP_SAFE_NAME}"
-				wiz_set "mysql/db_username" "${APP_SAFE_NAME:0:16}"
-				wiz_get "mysql/db_password" &>/dev/null || wiz_set "mysql/db_password" "$(wiz_random_password 32)"
-				wiz_set "mysql/db_source_host" "127.0.0.1"
-				wiz_set "mysql/ssl" "no"
+				wiz_get_or_set "mysql/db_host" "127.0.0.1"
+				wiz_get_or_set "mysql/db_port" "3306"
+				wiz_get_or_set "mysql/db_name" "${APP_SAFE_NAME}"
+				wiz_get_or_set "mysql/db_username" "${APP_SAFE_NAME:0:16}"
+				wiz_get_or_set "mysql/db_password" "$(wiz_random_password 32)"
+				wiz_get_or_set "mysql/db_source_host" "127.0.0.1"
+				wiz_get_or_set "mysql/ssl" "no"
 				;;
 			"reuse")
 				STATE="mysql_params_host"
