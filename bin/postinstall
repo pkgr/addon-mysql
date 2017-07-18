@@ -5,19 +5,19 @@ set -e
 . "${INSTALLER_DIR}/wizard"
 
 create_database() {
-	local root_password=$(wiz_get "mysql/root_password")
-	local dbc_host=$(wiz_get "mysql/db_host")
-	local dbc_port=$(wiz_get "mysql/db_port")
-	local dbc_username=$(wiz_get "mysql/db_username")
-	local dbc_password=$(wiz_get "mysql/db_password")
-	local dbc_name=$(wiz_get "mysql/db_name")
-	local dbc_source_host=$(wiz_get "mysql/db_source_host")
+	local root_password="$(wiz_get "mysql/root_password")"
+	local dbc_host="$(wiz_get "mysql/db_host")"
+	local dbc_port="$(wiz_get "mysql/db_port")"
+	local dbc_username="$(wiz_get "mysql/db_username")"
+	local dbc_password="$(wiz_get "mysql/db_password")"
+	local dbc_name="$(wiz_get "mysql/db_name")"
+	local dbc_source_host="$(wiz_get "mysql/db_source_host")"
 
 	if [ -z "$root_password" ] ; then
 		echo "Can't find the root password to create the MySQL database"
 		exit 1
 	else
-		cat <<MYSQL | mysql -uroot -p${root_password}
+		cat <<MYSQL | mysql -uroot -p"${root_password}"
 CREATE DATABASE IF NOT EXISTS \`${dbc_name}\` CHARACTER SET utf8;
 GRANT USAGE ON *.* TO '${dbc_username}'@'${dbc_source_host}' IDENTIFIED BY '${dbc_password}';
 GRANT ALL PRIVILEGES ON \`${dbc_name}\`.* TO '${dbc_username}'@'${dbc_source_host}';
@@ -33,12 +33,13 @@ generate_database_template() {
 	local addon_conf_dir="/etc/${APP_NAME}/addons/mysql"
 	local tmpfile=$(mktemp)
 	local dbc_type="mysql"
-	local dbc_host=$(wiz_get "mysql/db_host")
-	local dbc_port=$(wiz_get "mysql/db_port")
-	local dbc_username=$(wiz_get "mysql/db_username")
-	local dbc_password=$(wiz_get "mysql/db_password")
-	local dbc_name=$(wiz_get "mysql/db_name")
-	local dbc_source_host=$(wiz_get "mysql/db_source_host")
+	local dbc_host="$(wiz_get "mysql/db_host")"
+	local dbc_port="$(wiz_get "mysql/db_port")"
+	local dbc_username="$(wiz_get "mysql/db_username")"
+	# need to encode password in case there are special characters such as @ #
+	local dbc_password="$(wiz_urlencode "$(wiz_get "mysql/db_password")")"
+	local dbc_name="$(wiz_get "mysql/db_name")"
+	local dbc_source_host="$(wiz_get "mysql/db_source_host")"
 	local dbc_ssl="$(wiz_get "mysql/ssl")"
 	local dbc_ssl_ca="$(wiz_get "mysql/ssl_ca")"
 	local dbc_ssl_cert="$(wiz_get "mysql/ssl_cert")"
